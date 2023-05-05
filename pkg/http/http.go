@@ -37,6 +37,7 @@ func (i *HTTPInstanceAPI) Run() {
 
 	r.GET("/", i.handleRoot)
 	// Put manual video
+	r.POST("/process_map", i.processMap)
 
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{
