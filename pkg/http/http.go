@@ -39,6 +39,11 @@ func (i *HTTPInstanceAPI) Run() {
 	// Put manual video
 	r.POST("/process_map", i.processMap)
 
+	// Order
+	r.POST("/orders", i.addOrders)
+	r.PUT("/order", i.updateOrder)
+	r.DELETE("/order", i.deleteOrder)
+
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{
 		Handler:            r.Handler,

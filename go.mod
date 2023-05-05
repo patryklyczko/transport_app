@@ -9,6 +9,7 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/valyala/fasthttp v1.47.0
 	go.mongodb.org/mongo-driver v1.11.2
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
 
 require (
