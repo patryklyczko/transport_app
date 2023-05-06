@@ -40,9 +40,14 @@ func (i *HTTPInstanceAPI) Run() {
 	r.POST("/process_map", i.processMap)
 
 	// Order
-	r.POST("/orders", i.addOrders)
+	r.GET("/orders", i.orders)
+	r.GET("/order", i.order)
+	r.POST("/order", i.addOrders)
 	r.PUT("/order", i.updateOrder)
 	r.DELETE("/order", i.deleteOrder)
+
+	// Driver
+	// r.POST("/driver")
 
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{
