@@ -47,7 +47,11 @@ func (i *HTTPInstanceAPI) Run() {
 	r.DELETE("/order", i.deleteOrder)
 
 	// Driver
-	// r.POST("/driver")
+	r.GET("/drivers", i.drivers)
+	r.GET("/driver", i.driver)
+	r.POST("/driver", i.addDrivers)
+	r.PUT("/driver", i.updateDriver)
+	r.DELETE("/driver", i.deleteDriver)
 
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{

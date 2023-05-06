@@ -2,15 +2,6 @@
 
 # Example ./POST_comment.sh 
 URL="http://localhost:8000/order"
-
-data='{"position":{
-    "lat":20,
-    "lon":20
-    },
-    "time_add":
-}'
-
-
 data='{
   "position": {
     "latitude": 0.0,

@@ -25,7 +25,6 @@ type Order struct {
 	TimeAdd  time.Time `json:"time_add" bson:"time_add"`
 	TimeEnd  time.Time `json:"time_end" bson:"time_end"`
 	Gain     int64     `json:"gain" bson:"gain"`
-	// DriversAssign []Drivers
 }
 
 type OrderRequest struct {
