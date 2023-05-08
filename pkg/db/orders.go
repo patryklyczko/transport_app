@@ -20,18 +20,28 @@ type Position struct {
 }
 
 type Order struct {
-	ID       string    `json:"id" bson:"id"`
-	Position Position  `json:"position" bson:"position"`
-	TimeAdd  time.Time `json:"time_add" bson:"time_add"`
-	TimeEnd  time.Time `json:"time_end" bson:"time_end"`
-	Gain     int64     `json:"gain" bson:"gain"`
+	ID           string        `json:"id" bson:"id"`
+	PositionTake Position      `json:"position_take" bson:"position_take"`
+	PositionSend Position      `json:"position_send" bson:"position_send"`
+	TimeAdd      time.Time     `json:"time_add" bson:"time_add"`
+	TimeEnd      time.Time     `json:"time_end" bson:"time_end"`
+	Gain         int64         `json:"gain" bson:"gain"`
+	Weight       float32       `json:"weight" bson:"weight"`
+	Split        bool          `json:"split" bson:"split"`
+	Taken        bool          `json:"taken" bson:"taken"`
+	TimePack     time.Duration `json:"time_pack" bson:"time_pack"`
+	TimeFinish   time.Time     `json:"time_finish" bson:"time_finish"`
 }
 
 type OrderRequest struct {
-	Position Position  `json:"position" bson:"position"`
-	TimeAdd  time.Time `json:"time_add" bson:"time_add"`
-	TimeEnd  time.Time `json:"time_end" bson:"time_end"`
-	Gain     int64     `json:"gain" bson:"gain"`
+	PositionTake Position      `json:"position_take" bson:"position_take"`
+	PositionSend Position      `json:"position_send" bson:"position_send"`
+	TimeAdd      time.Time     `json:"time_add" bson:"time_add"`
+	TimeEnd      time.Time     `json:"time_end" bson:"time_end"`
+	Gain         int64         `json:"gain" bson:"gain"`
+	Weight       float32       `json:"weight" bson:"weight"`
+	Split        bool          `json:"split" bson:"split"`
+	TimePack     time.Duration `json:"time_pack" bson:"time_pack"`
 }
 
 func generateID(name string) string {
@@ -84,11 +94,12 @@ func (d *DBController) AddOrder(orderRequest *OrderRequest) (string, error) {
 	ID := generateID("od")
 
 	order := Order{
-		ID:       ID,
-		Position: orderRequest.Position,
-		TimeAdd:  orderRequest.TimeAdd,
-		TimeEnd:  orderRequest.TimeEnd,
-		Gain:     orderRequest.Gain,
+		ID:           ID,
+		PositionTake: orderRequest.PositionTake,
+		PositionSend: orderRequest.PositionSend,
+		TimeAdd:      orderRequest.TimeAdd,
+		TimeEnd:      orderRequest.TimeEnd,
+		Gain:         orderRequest.Gain,
 	}
 
 	_, err := collection.InsertOne(context.Background(), order)

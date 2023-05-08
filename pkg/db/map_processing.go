@@ -24,11 +24,12 @@ type NodePositions struct {
 type NodesRelations struct {
 	Parent   int64   `json:"parent" bson:"parent"`
 	Children []int64 `json:"children" bson:"children"`
+	MaxSpeed string  `json:"max_speed" bson:"max_speed"`
 }
 
 func (d *DBController) ProcessMap(path *MapRequest) error {
 	startTime := time.Now()
-	collectionNodes := d.db.Collection("NodesHighway")
+	collectionNodes := d.db.Collection("Nodes")
 	collectionRelations := d.db.Collection("Relations")
 
 	file, err := os.Open(path.Path)
@@ -128,6 +129,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 					connections := NodesRelations{
 						Parent:   v.ID,
 						Children: v.NodeIDs,
+						MaxSpeed: v.Tags["maxspeed"],
 					}
 					nodesRelationsChannel <- connections
 				}

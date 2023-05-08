@@ -53,10 +53,13 @@ func (i *HTTPInstanceAPI) Run() {
 	r.PUT("/driver", i.updateDriver)
 	r.DELETE("/driver", i.deleteDriver)
 
+	// Algorithms
+	r.POST("/simulated_anneling", i.anneling)
+
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{
 		Handler:            r.Handler,
-		Name:               "Video_Streaming",
+		Name:               "Transport_app",
 		MaxRequestBodySize: 64 * 1024 * 1024 * 1024, // 64MiB
 	}
 	log.Fatal(s.ListenAndServe(i.bind))
