@@ -3,6 +3,7 @@ package db
 import (
 	"container/heap"
 	"context"
+	"math"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -64,6 +65,8 @@ func heuristic(start Position, end Position) time.Duration {
 }
 
 func (d *DBController) AStar(driver Driver, start Position, end Position) time.Duration {
+	collection := d.db.Collection("Relations")
+	collectionNodes := d.db.Collection("Nodes")
 	var nodes []NodesRelations
 	var node *NodePositions
 	var nodeStart *NodesRelations
@@ -92,6 +95,51 @@ func (d *DBController) AStar(driver Driver, start Position, end Position) time.D
 
 	openSet := make(PriorityQueue, 0)
 	heap.Init(&openSet)
-	heap.Push(&openSet, &Item{Node: nodeStart})
+	heap.Push(&openSet, &Item{Node: nodeStart, Priority: float32(heuristic(start, end))})
 
+	gScore := make(map[*NodesRelations]time.Duration, len(nodes))
+	fScore := make(map[*NodesRelations]time.Duration, len(nodes))
+	for _, node := range nodes {
+		gScore[&node] = math.MaxInt64
+		fScore[&node] = math.MaxInt64
+	}
+	gScore[nodeStart] = 0
+	fScore[nodeStart] = heuristic(start, end)
+
+	for len(openSet) > 0 {
+		current := heap.Pop(&openSet).(*NodesRelations)
+		if current.Parent == nodeEnd.Parent {
+			return fScore[current]
+		}
+
+		var nodeCurr *NodePositions
+		filter := bson.M{"parent": current.Parent}
+		if err := collectionNodes.FindOne(context.Background(), filter).Decode(&nodeCurr); err != nil {
+			return 0
+		}
+
+		for _, node := range current.Children {
+			var nodeRelation *NodesRelations
+			filter := bson.M{"parent": node}
+			if err := collection.FindOne(context.Background(), filter).Decode(&nodeRelation); err != nil {
+				return 0
+			}
+
+			var nodeNeighbor *NodePositions
+			filter = bson.M{"parent": node}
+			if err := collectionNodes.FindOne(context.Background(), filter).Decode(&nodeNeighbor); err != nil {
+				return 0
+			}
+
+			tentativeGScore := gScore[current] + heuristic(nodeCurr.Position, nodeNeighbor.Position)
+			if tentativeGScore < gScore[current] {
+				gScore[nodeRelation] = tentativeGScore
+				fScore[nodeRelation] = tentativeGScore + heuristic(nodeNeighbor.Position, end)
+				if openSet.Contains(nodeRelation) {
+					heap.Push(&openSet, &Item{Node: nodeRelation, Priority: float32(gScore[nodeRelation])})
+				}
+			}
+		}
+	}
+	return 0
 }

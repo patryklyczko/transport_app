@@ -16,9 +16,8 @@ type MapRequest struct {
 }
 
 type NodePositions struct {
-	Parent int64   `json:"parent" bson:"parent"`
-	Lat    float32 `json:"lat" bson:"lat"`
-	Lon    float32 `json:"lon" bson:"lon"`
+	Parent   int64    `json:"parent" bson:"parent"`
+	Position Position `json:"position" bson:"position"`
 }
 
 type NodesRelations struct {
@@ -118,8 +117,10 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 				if containTag(v.Tags, "highway") {
 					position := NodePositions{
 						Parent: v.ID,
-						Lat:    float32(v.Lat),
-						Lon:    float32(v.Lon),
+						Position: Position{
+							Lat: float32(v.Lat),
+							Lon: float32(v.Lon),
+						},
 					}
 					nodesPositionChannel <- position
 				}

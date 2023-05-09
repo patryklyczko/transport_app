@@ -31,3 +31,12 @@ func (pq *PriorityQueue) Pop() interface{} {
 	*pq = old[:n-1]
 	return item
 }
+
+func (pq *PriorityQueue) Contains(node *NodesRelations) bool {
+	for _, item := range *pq {
+		if item.Node == node {
+			return true
+		}
+	}
+	return false
+}

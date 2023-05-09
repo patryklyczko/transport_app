@@ -59,8 +59,13 @@ func (d *DBController) AddOrdersByRemainingTime(driver *Driver, orders []Order, 
 	ordersAccepted := make([]Order, len(orders))
 	ordersFree := make([]Order, len(freeOrders))
 
+	timeLastOrder = time.Now()
 	for _, order := range orders {
-		order.TimeFinish = d.AStar(driver.Position, order.PositionTake) + 2*order.TimePack + d.AStar(order.PositionTake, order.PositionSend) + timeLastOrder
+		order.TimeFinish = timeLastOrder.Add(
+			d.AStar(*driver, driver.Position, order.PositionTake) +
+				2*order.TimePack +
+				d.AStar(*driver, order.PositionTake, order.PositionSend))
+
 		if order.TimeEnd.Sub(order.TimeEnd).Hours() < 0 {
 			ordersAccepted = append(ordersAccepted, freeOrders[0])
 			freeOrders = freeOrders[1:]
