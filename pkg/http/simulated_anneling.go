@@ -8,23 +8,24 @@ import (
 )
 
 func (i *HTTPInstanceAPI) anneling(ctx *fasthttp.RequestCtx) {
-	var order *db.OrderRequest
-	var id string
+	var parameters *db.AnnelingParameters
 	var err error
+	var solution map[*db.Driver][]db.Order
+	var gain float32
 
 	body := ctx.Request.Body()
-	if err = json.Unmarshal(body, &order); err != nil {
+	if err = json.Unmarshal(body, &parameters); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		i.log.Errorf("error while unmarshal order %v", err)
+		i.log.Errorf("error while algorithm anneling %v", err)
 		return
 	}
 
-	if err = i.api.Anneling(nil); err != nil {
+	if solution, gain, err = i.api.Anneling(parameters); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		i.log.Errorf("error while adding order %v", err)
+		i.log.Errorf("error while algorithm anneling %v", err)
 		return
 	}
+	i.log.Debugf("Solution %v \n gain %v", solution, gain)
 
-	i.log.Debugf("added order %v", id)
-	ctx.Response.SetStatusCode(fasthttp.StatusCreated)
+	ctx.Response.SetStatusCode(fasthttp.StatusAccepted)
 }

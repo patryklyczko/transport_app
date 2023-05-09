@@ -93,12 +93,22 @@ func (d *DBController) Randomize(neighborhood map[*Driver]([]Order)) {
 	neighborhood[&keys[1]] = val
 }
 
-func (d *DBController) ChangeNeighborhood(neighborhood map[*Driver]([]Order), freeOrders []Order) (map[*Driver]([]Order), error) {
+func (d *DBController) ChangeNeighborhood(neighborhood map[*Driver]([]Order), freeOrders []Order) map[*Driver]([]Order) {
 	var orders []Order
 	for k, v := range neighborhood {
 		d.Randomize(neighborhood)
 		orders, freeOrders = d.AddOrdersByRemainingTime(k, v, freeOrders)
 		neighborhood[k] = orders
 	}
-	return neighborhood, nil
+	return neighborhood
+}
+
+func (d *DBController) Gain(solution map[*Driver]([]Order)) float32 {
+	gain := float32(0)
+	for _, v := range solution {
+		for _, order := range v {
+			gain += float32(order.Gain)
+		}
+	}
+	return gain
 }
