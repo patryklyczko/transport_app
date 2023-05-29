@@ -3,10 +3,10 @@ package algorithms
 import (
 	"sort"
 
-	"github.com/patryklyczko/transport_app/pkg/db"
+	"github.com/patryklyczko/transport_app/pkg/structures"
 )
 
-func (s *Stack) Push(order db.OrderAlgorithm) {
+func (s *Stack) Push(order structures.OrderAlgorithm) {
 	s.items = append(s.items, order)
 }
 
@@ -16,6 +16,12 @@ func (s *Stack) SortByPriority() {
 	})
 }
 
+func (s *Stack) Pop() structures.OrderAlgorithm {
+	item := s.items[0]
+	s.items = s.items[1:]
+	return item
+}
+
 type Stack struct {
-	items []db.OrderAlgorithm
+	items []structures.OrderAlgorithm
 }

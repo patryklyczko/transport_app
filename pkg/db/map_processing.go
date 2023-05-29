@@ -8,25 +8,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"github.com/qedus/osmpbf"
 )
 
-type MapRequest struct {
-	Path string `json:"path" bson:"path"`
-}
-
-type NodePositions struct {
-	Parent   int64    `json:"parent" bson:"parent"`
-	Position Position `json:"position" bson:"position"`
-}
-
-type NodesRelations struct {
-	Parent   int64   `json:"parent" bson:"parent"`
-	Children []int64 `json:"children" bson:"children"`
-	MaxSpeed string  `json:"max_speed" bson:"max_speed"`
-}
-
-func (d *DBController) ProcessMap(path *MapRequest) error {
+func (d *DBController) ProcessMap(path *structures.MapRequest) error {
 	startTime := time.Now()
 	collectionNodes := d.db.Collection("Nodes")
 	collectionRelations := d.db.Collection("Relations")
@@ -59,7 +45,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 		go func() {
 			defer wg.Done()
 			for item := range nodesPositionChannel {
-				nodesPositionsInsert = append(nodesPositionsInsert, item.(NodePositions))
+				nodesPositionsInsert = append(nodesPositionsInsert, item.(structures.NodePositions))
 
 				if len(nodesPositionsInsert) >= 8000 {
 					_, err = collectionNodes.InsertMany(context.Background(), nodesPositionsInsert)
@@ -83,7 +69,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 		go func() {
 			defer wg.Done()
 			for item := range nodesRelationsChannel {
-				nodesRelationsInsert = append(nodesRelationsInsert, item.(NodesRelations))
+				nodesRelationsInsert = append(nodesRelationsInsert, item.(structures.NodesRelations))
 
 				if len(nodesRelationsInsert) >= 8000 {
 					_, err = collectionRelations.InsertMany(context.Background(), nodesRelationsInsert)
@@ -115,9 +101,9 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 			case *osmpbf.Node:
 				// Node
 				if containTag(v.Tags, "highway") {
-					position := NodePositions{
+					position := structures.NodePositions{
 						Parent: v.ID,
-						Position: Position{
+						Position: structures.Position{
 							Lat: float32(v.Lat),
 							Lon: float32(v.Lon),
 						},
@@ -127,7 +113,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 			case *osmpbf.Way:
 				// Way
 				if containTag(v.Tags, "highway") {
-					connections := NodesRelations{
+					connections := structures.NodesRelations{
 						Parent:   v.ID,
 						Children: v.NodeIDs,
 						MaxSpeed: v.Tags["maxspeed"],

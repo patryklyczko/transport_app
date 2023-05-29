@@ -3,12 +3,13 @@ package db
 import (
 	"context"
 
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (d *DBController) MapNodes() ([]NodesRelations, error) {
+func (d *DBController) MapNodes() ([]structures.NodesRelations, error) {
 	collection := d.db.Collection("Relations")
-	var nodes []NodesRelations
+	var nodes []structures.NodesRelations
 	filter := bson.M{}
 
 	cur, err := collection.Find(context.Background(), filter)
@@ -18,7 +19,7 @@ func (d *DBController) MapNodes() ([]NodesRelations, error) {
 	defer cur.Close(context.Background())
 
 	for cur.Next(context.Background()) {
-		var node NodesRelations
+		var node structures.NodesRelations
 		if err := cur.Decode(&node); err != nil {
 			return nil, err
 		}

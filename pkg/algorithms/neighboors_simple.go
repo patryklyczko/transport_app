@@ -1,18 +1,18 @@
 package algorithms
 
-import "github.com/patryklyczko/transport_app/pkg/db"
+import "github.com/patryklyczko/transport_app/pkg/structures"
 
-func NeighboorsSimpl(orders []db.OrderAlgorithm, drivers []db.Driver) []db.Solution {
-	solutions := []db.Solution{}
+func NeighboorsSimpl(ordersPriority *Stack, drivers []structures.Driver) []structures.Solution {
+	solutions := []structures.Solution{}
 
-	for i, driver := range drivers {
-		solution := db.Solution{
+	for _, driver := range drivers {
+		order := ordersPriority.Pop()
+		solution := structures.Solution{
 			Driver:     driver,
-			Orders:     []db.OrderAlgorithm{orders[i]},
-			EndTime:    orders[i].TimeFinish,
-			WeightLeft: driver.Capacity - orders[i].Weight,
+			Orders:     []structures.OrderAlgorithm{order},
+			EndTime:    order.TimeFinish,
+			WeightLeft: driver.Capacity - order.Weight,
 		}
-		orders[i].Taken = true
 		solutions = append(solutions, solution)
 	}
 	return solutions

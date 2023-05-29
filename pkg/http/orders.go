@@ -3,12 +3,12 @@ package http
 import (
 	"encoding/json"
 
-	"github.com/patryklyczko/transport_app/pkg/db"
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"github.com/valyala/fasthttp"
 )
 
 func (i *HTTPInstanceAPI) orders(ctx *fasthttp.RequestCtx) {
-	var orders []db.Order
+	var orders []structures.Order
 	var err error
 	var body []byte
 
@@ -29,7 +29,7 @@ func (i *HTTPInstanceAPI) orders(ctx *fasthttp.RequestCtx) {
 }
 
 func (i *HTTPInstanceAPI) order(ctx *fasthttp.RequestCtx) {
-	var order *db.Order
+	var order *structures.Order
 	var err error
 	var body []byte
 
@@ -53,7 +53,7 @@ func (i *HTTPInstanceAPI) order(ctx *fasthttp.RequestCtx) {
 }
 
 func (i *HTTPInstanceAPI) addOrders(ctx *fasthttp.RequestCtx) {
-	var order *db.OrderRequest
+	var order *structures.OrderRequest
 	var id string
 	var err error
 
@@ -75,7 +75,7 @@ func (i *HTTPInstanceAPI) addOrders(ctx *fasthttp.RequestCtx) {
 }
 
 func (i *HTTPInstanceAPI) updateOrder(ctx *fasthttp.RequestCtx) {
-	var order *db.Order
+	var order *structures.Order
 	var err error
 
 	body := ctx.Request.Body()
@@ -97,7 +97,7 @@ func (i *HTTPInstanceAPI) updateOrder(ctx *fasthttp.RequestCtx) {
 
 func (i *HTTPInstanceAPI) deleteOrder(ctx *fasthttp.RequestCtx) {
 	var err error
-	var ID db.UID
+	var ID structures.UID
 	body := ctx.Request.Body()
 
 	if err := json.Unmarshal(body, &ID); err != nil {

@@ -3,12 +3,12 @@ package http
 import (
 	"encoding/json"
 
-	"github.com/patryklyczko/transport_app/pkg/db"
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"github.com/valyala/fasthttp"
 )
 
 func (i *HTTPInstanceAPI) processMap(ctx *fasthttp.RequestCtx) {
-	var pathOpen db.MapRequest
+	var pathOpen structures.MapRequest
 	body := ctx.Request.Body()
 
 	if err := json.Unmarshal(body, &pathOpen); err != nil {

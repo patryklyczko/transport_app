@@ -1,8 +1,8 @@
 package algorithms
 
-import "github.com/patryklyczko/transport_app/pkg/db"
+import "github.com/patryklyczko/transport_app/pkg/structures"
 
-func MinkowskiDistance(posStart, posEnd db.Position) float32 {
+func MinkowskiDistance(posStart, posEnd structures.Position) float32 {
 	return abs(posStart.Lat-posEnd.Lat) + abs(posStart.Lon-posEnd.Lon)
 }
 

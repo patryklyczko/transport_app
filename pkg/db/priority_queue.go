@@ -1,7 +1,9 @@
 package db
 
+import "github.com/patryklyczko/transport_app/pkg/structures"
+
 type Item struct {
-	Node     *NodesRelations
+	Node     *structures.NodesRelations
 	Priority float32
 }
 
@@ -32,7 +34,7 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return item
 }
 
-func (pq *PriorityQueue) Contains(node *NodesRelations) bool {
+func (pq *PriorityQueue) Contains(node *structures.NodesRelations) bool {
 	for _, item := range *pq {
 		if item.Node == node {
 			return true

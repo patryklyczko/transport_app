@@ -3,9 +3,9 @@ package db
 import (
 	"math"
 	"math/rand"
-	"time"
 
 	"github.com/patryklyczko/transport_app/pkg/algorithms"
+	"github.com/patryklyczko/transport_app/pkg/structures"
 )
 
 type AnnelingParameters struct {
@@ -16,19 +16,12 @@ type AnnelingParameters struct {
 	K       float64 `json:"k" bson:"k"`
 }
 
-type Solution struct {
-	Driver     Driver
-	Orders     []OrderAlgorithm
-	EndTime    time.Time
-	WeightLeft float32
-}
-
-func (d *DBController) Anneling(parameters *AnnelingParameters) (map[*Driver][]Order, float32, error) {
-	var emptyOrders []Order
-	var drivers []Driver
+func (d *DBController) Anneling(parameters *AnnelingParameters) (map[*structures.Driver][]structures.Order, float32, error) {
+	var emptyOrders []structures.Order
+	var drivers []structures.Driver
 	var err error
-	var freeOrders []Order
-	var ordersPriority []OrderAlgorithm
+	var ordersPriority *algorithms.Stack
+	var solutionNeighbor []structures.Solution
 
 	if emptyOrders, err = d.EmptyOrders(); err != nil {
 		return nil, 0, err
@@ -49,10 +42,10 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) (map[*Driver][]O
 
 	iteration := 0
 	d.log.Debugf("Iteration \t Best_value \t Current value")
-	actualNeighbor, freeOrders = d.ChangeNeighborhood(initialSolution, emptyOrders)
+	actualNeighbor := algorithms.ChangeNeighborhood(initialSolution, &ordersPriority, 1232)
 	for (temperature > parameters.T_end) && parameters.N_max > 0 {
-		solutionNeighbor, freeOrders = d.ChangeNeighborhood(actualNeighbor, freeOrders)
-		gainNeighbor := d.Gain(solutionNeighbor)
+		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, &ordersPriority, 1232)
+		gainNeighbor := algorithms.Gain(initialSolution)
 		d.log.Debugf("%v \t\t %v \t\t %v", iteration, bestGain, gainNeighbor)
 
 		if gainNeighbor > bestGain {

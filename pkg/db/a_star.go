@@ -6,15 +6,16 @@ import (
 	"math"
 	"time"
 
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (d *DBController) FindNearestNode(position *Position) (*NodePositions, error) {
+func (d *DBController) FindNearestNode(position *structures.Position) (*structures.NodePositions, error) {
 	collection := d.db.Collection("Nodes")
 	var cur *mongo.Cursor
-	var node NodePositions
+	var node structures.NodePositions
 	var err error
 
 	filter := bson.M{}
@@ -41,9 +42,9 @@ func (d *DBController) FindNearestNode(position *Position) (*NodePositions, erro
 	return &node, nil
 }
 
-func (d *DBController) NodeToRelation(node *NodePositions) (*NodesRelations, error) {
+func (d *DBController) NodeToRelation(node *structures.NodePositions) (*structures.NodesRelations, error) {
 	collection := d.db.Collection("Relations")
-	var nodeRelation *NodesRelations
+	var nodeRelation *structures.NodesRelations
 
 	filter := bson.M{"parent": node.Parent}
 	if err := collection.FindOne(context.Background(), filter).Decode(&nodeRelation); err != nil {
@@ -60,17 +61,17 @@ func abs(x float32) float32 {
 	return x
 }
 
-func heuristic(start Position, end Position) time.Duration {
+func heuristic(start structures.Position, end structures.Position) time.Duration {
 	return time.Duration((abs(start.Lat-end.Lat) + abs(start.Lon-end.Lon)) * float32(time.Hour))
 }
 
-func (d *DBController) AStar(driver Driver, start Position, end Position) time.Duration {
+func (d *DBController) AStar(driver structures.Driver, start structures.Position, end structures.Position) time.Duration {
 	collection := d.db.Collection("Relations")
 	collectionNodes := d.db.Collection("Nodes")
-	var nodes []NodesRelations
-	var node *NodePositions
-	var nodeStart *NodesRelations
-	var nodeEnd *NodesRelations
+	var nodes []structures.NodesRelations
+	var node *structures.NodePositions
+	var nodeStart *structures.NodesRelations
+	var nodeEnd *structures.NodesRelations
 	var err error
 
 	if nodes, err = d.MapNodes(); err != nil {
@@ -97,8 +98,8 @@ func (d *DBController) AStar(driver Driver, start Position, end Position) time.D
 	heap.Init(&openSet)
 	heap.Push(&openSet, &Item{Node: nodeStart, Priority: float32(heuristic(start, end))})
 
-	gScore := make(map[*NodesRelations]time.Duration, len(nodes))
-	fScore := make(map[*NodesRelations]time.Duration, len(nodes))
+	gScore := make(map[*structures.NodesRelations]time.Duration, len(nodes))
+	fScore := make(map[*structures.NodesRelations]time.Duration, len(nodes))
 	for _, node := range nodes {
 		gScore[&node] = math.MaxInt64
 		fScore[&node] = math.MaxInt64
@@ -107,25 +108,25 @@ func (d *DBController) AStar(driver Driver, start Position, end Position) time.D
 	fScore[nodeStart] = heuristic(start, end)
 
 	for len(openSet) > 0 {
-		current := heap.Pop(&openSet).(*NodesRelations)
+		current := heap.Pop(&openSet).(*structures.NodesRelations)
 		if current.Parent == nodeEnd.Parent {
 			return fScore[current]
 		}
 
-		var nodeCurr *NodePositions
+		var nodeCurr *structures.NodePositions
 		filter := bson.M{"parent": current.Parent}
 		if err := collectionNodes.FindOne(context.Background(), filter).Decode(&nodeCurr); err != nil {
 			return 0
 		}
 
 		for _, node := range current.Children {
-			var nodeRelation *NodesRelations
+			var nodeRelation *structures.NodesRelations
 			filter := bson.M{"parent": node}
 			if err := collection.FindOne(context.Background(), filter).Decode(&nodeRelation); err != nil {
 				return 0
 			}
 
-			var nodeNeighbor *NodePositions
+			var nodeNeighbor *structures.NodePositions
 			filter = bson.M{"parent": node}
 			if err := collectionNodes.FindOne(context.Background(), filter).Decode(&nodeNeighbor); err != nil {
 				return 0

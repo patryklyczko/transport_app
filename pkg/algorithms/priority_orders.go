@@ -1,23 +1,22 @@
 package algorithms
 
-import "github.com/patryklyczko/transport_app/pkg/db"
+import "github.com/patryklyczko/transport_app/pkg/structures"
 
-func PriorityOrders(orders []db.Order) []db.OrderAlgorithm {
+func PriorityOrders(orders []structures.Order) *Stack {
 	var orderAlgorithms Stack
 	var priority float32
 	KScalar := float32(1000)
 	for _, order := range orders {
 		priority = KScalar * float32(order.Gain) / (MinkowskiDistance(order.PositionTake, order.PositionSend))
-		orderAlg := db.OrderAlgorithm{
+		orderAlg := structures.OrderAlgorithm{
 			ID:         order.ID,
 			Gain:       order.Gain,
 			TimeFinish: order.TimeFinish,
 			Weight:     order.Weight,
-			Taken:      order.Taken,
 			Priority:   priority,
 		}
 		orderAlgorithms.Push(orderAlg)
 	}
 	orderAlgorithms.SortByPriority()
-	return orderAlgorithms.items
+	return &orderAlgorithms
 }

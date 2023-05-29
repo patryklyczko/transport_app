@@ -3,28 +3,14 @@ package db
 import (
 	"context"
 
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
 )
 
-type Driver struct {
-	ID       string   `json:"id" bson:"id"`
-	Name     string   `json:"name" bson:"name"`
-	Position Position `json:"position" bson:"position"`
-	Orders   []Order  `json:"orders" bson:"orders"`
-	Capacity float32  `json:"capacity" bson:"capacity"`
-}
-
-type DriverRequest struct {
-	Name     string   `json:"name" bson:"name"`
-	Position Position `json:"position" bson:"position"`
-	Orders   []Order  `json:"orders" bson:"orders"`
-	Capacity float32  `json:"capacity" bson:"capacity"`
-}
-
-func (d *DBController) Drivers() ([]Driver, error) {
+func (d *DBController) Drivers() ([]structures.Driver, error) {
 	collection := d.db.Collection("Drivers")
-	var drivers []Driver
+	var drivers []structures.Driver
 	filter := bson.M{}
 
 	cur, err := collection.Find(context.Background(), filter)
@@ -34,7 +20,7 @@ func (d *DBController) Drivers() ([]Driver, error) {
 	defer cur.Close(context.Background())
 
 	for cur.Next(context.Background()) {
-		var driver Driver
+		var driver structures.Driver
 		if err := cur.Decode(&driver); err != nil {
 			return nil, err
 		}
@@ -47,9 +33,9 @@ func (d *DBController) Drivers() ([]Driver, error) {
 	return drivers, nil
 }
 
-func (d *DBController) Driver(ID string) (*Driver, error) {
+func (d *DBController) Driver(ID string) (*structures.Driver, error) {
 	collection := d.db.Collection("Drivers")
-	var driver *Driver
+	var driver *structures.Driver
 
 	filter := bson.M{"id": ID}
 	if err := collection.FindOne(context.Background(), filter).Decode(&driver); err != nil {
@@ -59,11 +45,11 @@ func (d *DBController) Driver(ID string) (*Driver, error) {
 	return driver, nil
 }
 
-func (d *DBController) AddDriver(driverRequest *DriverRequest) (string, error) {
+func (d *DBController) AddDriver(driverRequest *structures.DriverRequest) (string, error) {
 	collection := d.db.Collection("Drivers")
 	ID := generateID("dr")
 
-	driver := Driver{
+	driver := structures.Driver{
 		ID:       ID,
 		Position: driverRequest.Position,
 		Name:     driverRequest.Name,
@@ -79,7 +65,7 @@ func (d *DBController) AddDriver(driverRequest *DriverRequest) (string, error) {
 	return ID, nil
 }
 
-func (d *DBController) UpdateDriver(driver *Driver) error {
+func (d *DBController) UpdateDriver(driver *structures.Driver) error {
 	collection := d.db.Collection("Drivers")
 
 	filter := bson.M{"id": driver.ID}
