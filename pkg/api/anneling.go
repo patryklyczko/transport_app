@@ -5,6 +5,6 @@ import (
 	"github.com/patryklyczko/transport_app/pkg/structures"
 )
 
-func (a *InstanceAPI) Anneling(parameters *db.AnnelingParameters) (map[*structures.Driver]([]structures.Order), float32, error) {
+func (a *InstanceAPI) Anneling(parameters *db.AnnelingParameters) ([]structures.Solution, float32, error) {
 	return a.dbController.Anneling(parameters)
 }

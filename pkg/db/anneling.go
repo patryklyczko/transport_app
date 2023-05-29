@@ -16,7 +16,7 @@ type AnnelingParameters struct {
 	K       float64 `json:"k" bson:"k"`
 }
 
-func (d *DBController) Anneling(parameters *AnnelingParameters) (map[*structures.Driver][]structures.Order, float32, error) {
+func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.Solution, float32, error) {
 	var emptyOrders []structures.Order
 	var drivers []structures.Driver
 	var err error
@@ -42,9 +42,9 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) (map[*structures
 
 	iteration := 0
 	d.log.Debugf("Iteration \t Best_value \t Current value")
-	actualNeighbor := algorithms.ChangeNeighborhood(initialSolution, &ordersPriority, 1232)
+	actualNeighbor := algorithms.ChangeNeighborhood(initialSolution, ordersPriority, 1232)
 	for (temperature > parameters.T_end) && parameters.N_max > 0 {
-		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, &ordersPriority, 1232)
+		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, ordersPriority, 1232)
 		gainNeighbor := algorithms.Gain(initialSolution)
 		d.log.Debugf("%v \t\t %v \t\t %v", iteration, bestGain, gainNeighbor)
 

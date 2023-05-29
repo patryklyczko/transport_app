@@ -2,7 +2,7 @@ package algorithms
 
 import "github.com/patryklyczko/transport_app/pkg/structures"
 
-func NeighboorsSimpl(ordersPriority *Stack, drivers []structures.Driver) []structures.Solution {
+func NeighboorsSimple(ordersPriority *Stack, drivers []structures.Driver) []structures.Solution {
 	solutions := []structures.Solution{}
 
 	for _, driver := range drivers {
