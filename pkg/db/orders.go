@@ -44,6 +44,15 @@ type OrderRequest struct {
 	TimePack     time.Duration `json:"time_pack" bson:"time_pack"`
 }
 
+type OrderAlgorithm struct {
+	ID         string    `json:"id" bson:"id"`
+	Gain       int64     `json:"gain" bson:"gain"`
+	TimeFinish time.Time `json:"time_finish" bson:"time_finish"`
+	Weight     float32   `json:"weight" bson:"weight"`
+	Taken      bool      `json:"taken" bson:"taken"`
+	Priority   float32   `json:"priority" bson:"priority"`
+}
+
 func generateID(name string) string {
 	now := time.Now().UnixNano()
 	rand.Seed(now)
@@ -133,4 +142,29 @@ func (d *DBController) DeleteOrder(ID string) error {
 	}
 
 	return nil
+}
+
+func (d *DBController) EmptyOrders() ([]Order, error) {
+	var orders []Order
+	collection := d.db.Collection("Orders")
+	filter := bson.M{"taken": false}
+
+	cur, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(context.Background())
+
+	for cur.Next(context.Background()) {
+		var order Order
+		if err := cur.Decode(&order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return orders, nil
 }

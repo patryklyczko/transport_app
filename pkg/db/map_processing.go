@@ -61,7 +61,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 			for item := range nodesPositionChannel {
 				nodesPositionsInsert = append(nodesPositionsInsert, item.(NodePositions))
 
-				if len(nodesPositionsInsert) >= 5000 {
+				if len(nodesPositionsInsert) >= 8000 {
 					_, err = collectionNodes.InsertMany(context.Background(), nodesPositionsInsert)
 					if err != nil {
 						d.log.Debugf("error while inserting positions: %v", err)
@@ -85,7 +85,7 @@ func (d *DBController) ProcessMap(path *MapRequest) error {
 			for item := range nodesRelationsChannel {
 				nodesRelationsInsert = append(nodesRelationsInsert, item.(NodesRelations))
 
-				if len(nodesRelationsInsert) >= 5000 {
+				if len(nodesRelationsInsert) >= 8000 {
 					_, err = collectionRelations.InsertMany(context.Background(), nodesRelationsInsert)
 					if err != nil {
 						d.log.Debugf("error while inserting relations")

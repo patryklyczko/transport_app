@@ -12,12 +12,14 @@ type Driver struct {
 	Name     string   `json:"name" bson:"name"`
 	Position Position `json:"position" bson:"position"`
 	Orders   []Order  `json:"orders" bson:"orders"`
+	Capacity float32  `json:"capacity" bson:"capacity"`
 }
 
 type DriverRequest struct {
 	Name     string   `json:"name" bson:"name"`
 	Position Position `json:"position" bson:"position"`
 	Orders   []Order  `json:"orders" bson:"orders"`
+	Capacity float32  `json:"capacity" bson:"capacity"`
 }
 
 func (d *DBController) Drivers() ([]Driver, error) {
@@ -66,6 +68,7 @@ func (d *DBController) AddDriver(driverRequest *DriverRequest) (string, error) {
 		Position: driverRequest.Position,
 		Name:     driverRequest.Name,
 		Orders:   driverRequest.Orders,
+		Capacity: driverRequest.Capacity,
 	}
 
 	_, err := collection.InsertOne(context.Background(), driver)
