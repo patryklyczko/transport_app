@@ -1,5 +1,8 @@
 package structures
 
+var LatScaler float32 = 1000
+var LonScaler float32 = 1000
+
 type MapRequest struct {
 	Path string `json:"path" bson:"path"`
 }
