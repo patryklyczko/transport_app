@@ -8,8 +8,8 @@ func Gain(solutions []structures.Solution) float32 {
 		orders := solution.Orders
 		for _, order := range orders {
 			gain += float32(order.Gain)
+			gain -= solution.Driver.Capacity * 2
 		}
-		gain -= solution.Driver.Capacity * 2
 	}
 	return gain
 }
