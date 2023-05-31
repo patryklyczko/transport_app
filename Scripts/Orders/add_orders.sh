@@ -1,7 +1,7 @@
 #!/bin/bash
 
-lat_list=(15 39 44 52 12 24 32 4 4 21 65)
-lon_list=(15 29 4 2 3 44 3 21 4 9 112)
+lat_list=(15 9 4 52 12 2 32 4 4 21 65)
+lon_list=(1 29 4 2 3 44 3 21 4 9 12)
 
 length=${#lon_list[@]}
 
@@ -14,7 +14,7 @@ for ((i=0; i<$length; i++)); do
     },
     "time_add": "2023-01-02T15:04:05Z",
     "time_end": "2023-01-02T15:04:05Z",
-    "gain": 2382
+    "gain": 10000
     }'
 
     curl -X POST -d "$data" "$URL" 
