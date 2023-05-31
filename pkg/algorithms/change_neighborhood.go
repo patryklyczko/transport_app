@@ -7,22 +7,21 @@ import (
 )
 
 func ChangeNeighborhood(solutions []structures.Solution, ordersPriority *Stack, removeProbability float64) []structures.Solution {
-	order := ordersPriority.Pop()
-	for _, solution := range solutions {
+	var order *structures.OrderAlgorithm
+	for i, solution := range solutions {
+		if order = ordersPriority.TakeFree(); order != nil {
+			if solution.EndTime.Minute() < order.TimeFinish.Minute() && solution.WeightLeft < order.Weight {
+				continue
+			}
+			solutions[i].Orders = append(solution.Orders, *order)
+		}
 
-		r := rand.Float64()
-		if r > removeProbability {
+		r := rand.Float64() * 10
+		if r > removeProbability && len(solution.Orders) > 0 {
 			orderRemoved := solution.Orders[0]
-			solution.Orders = solution.Orders[1:]
-			ordersPriority.Push(orderRemoved)
+			solutions[i].Orders = solution.Orders[1:]
+			ordersPriority.Freed(&orderRemoved)
 		}
-
-		if solution.EndTime.Minute() < order.TimeFinish.Minute() && solution.WeightLeft < order.Weight {
-			continue
-		}
-		solution.Orders = append(solution.Orders, order)
-		order = ordersPriority.Pop()
 	}
-	ordersPriority.Push(order)
 	return solutions
 }
