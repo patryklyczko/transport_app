@@ -22,6 +22,32 @@ func (s *Stack) Pop() structures.OrderAlgorithm {
 	return item
 }
 
+func (s *Stack) IsEmpty() bool {
+	return len(s.items) == 0
+}
+
+func (s *Stack) Get() []structures.OrderAlgorithm {
+	return s.items
+}
+
+func (s *Stack) TakeFree() *structures.OrderAlgorithm {
+	for i, order := range s.items {
+		if !order.Taken {
+			s.items[i].Taken = true
+			return &s.items[i]
+		}
+	}
+	return nil
+}
+
+func (s *Stack) Freed(orderFreed *structures.OrderAlgorithm) {
+	for i, order := range s.items {
+		if order.ID == orderFreed.ID {
+			s.items[i].Taken = false
+		}
+	}
+}
+
 type Stack struct {
 	items []structures.OrderAlgorithm
 }
