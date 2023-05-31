@@ -22,6 +22,7 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 	var err error
 	var ordersPriority *algorithms.Stack
 	var solutionNeighbor []structures.Solution
+	var actualNeighbor []structures.Solution
 
 	if emptyOrders, err = d.EmptyOrders(); err != nil {
 		return nil, 0, err
@@ -40,12 +41,16 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 	bestGain := algorithms.Gain(bestSolution)
 	temperature := parameters.T_init
 
+	if ordersPriority.IsEmpty() {
+		return nil, 0, nil
+	}
+
 	iteration := 0
 	d.log.Debugf("Iteration \t Best_value \t Current value")
-	actualNeighbor := algorithms.ChangeNeighborhood(initialSolution, ordersPriority, 1232)
+	actualNeighbor = algorithms.ChangeNeighborhood(initialSolution, ordersPriority, 6)
 	for (temperature > parameters.T_end) && parameters.N_max > 0 {
-		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, ordersPriority, 1232)
-		gainNeighbor := algorithms.Gain(initialSolution)
+		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, ordersPriority, 6)
+		gainNeighbor := algorithms.Gain(solutionNeighbor)
 		d.log.Debugf("%v \t\t %v \t\t %v", iteration, bestGain, gainNeighbor)
 
 		if gainNeighbor > bestGain {
