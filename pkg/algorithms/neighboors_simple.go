@@ -1,6 +1,10 @@
 package algorithms
 
-import "github.com/patryklyczko/transport_app/pkg/structures"
+import (
+	"time"
+
+	"github.com/patryklyczko/transport_app/pkg/structures"
+)
 
 func NeighboorsSimple(ordersPriority *Stack, drivers []structures.Driver) []structures.Solution {
 	solutions := []structures.Solution{}
@@ -10,7 +14,8 @@ func NeighboorsSimple(ordersPriority *Stack, drivers []structures.Driver) []stru
 		solution := structures.Solution{
 			Driver:     driver,
 			Orders:     []structures.OrderAlgorithm{order},
-			EndTime:    order.TimeFinish,
+			FreeTime:   []time.Time{order.TimeFinish},
+			EndTime:    order.TimeFinish, //Change
 			WeightLeft: driver.Capacity - order.Weight,
 		}
 		solutions = append(solutions, solution)

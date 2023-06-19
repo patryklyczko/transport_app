@@ -10,6 +10,10 @@ func (a *InstanceAPI) Order(ID string) (*structures.Order, error) {
 	return a.dbController.Order(ID)
 }
 
+func (a *InstanceAPI) PageOrder(page, number int) (*structures.OrderPagination, error) {
+	return a.dbController.PageOrder(page, number)
+}
+
 func (a *InstanceAPI) AddOrder(order *structures.OrderRequest) (string, error) {
 	return a.dbController.AddOrder(order)
 }

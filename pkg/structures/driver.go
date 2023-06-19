@@ -14,3 +14,8 @@ type DriverRequest struct {
 	Orders   []Order  `json:"orders" bson:"orders"`
 	Capacity float32  `json:"capacity" bson:"capacity"`
 }
+
+type DriverPagination struct {
+	DriversCount int      `json:"order_count"`
+	Drivers      []Driver `json:"orders"`
+}

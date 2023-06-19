@@ -13,6 +13,11 @@ type AnnelingParameters struct {
 type Solution struct {
 	Driver     Driver
 	Orders     []OrderAlgorithm
+	FreeTime   []time.Time
 	EndTime    time.Time
 	WeightLeft float32
+}
+
+type SolutionValues struct {
+	Profit float32 `json:"profit"`
 }

@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 
 	"github.com/patryklyczko/transport_app/pkg/db"
+	"github.com/patryklyczko/transport_app/pkg/structures"
 	"github.com/valyala/fasthttp"
 )
 
 func (i *HTTPInstanceAPI) anneling(ctx *fasthttp.RequestCtx) {
 	var parameters *db.AnnelingParameters
+	var solutionValue *structures.SolutionValues
 	var err error
 	// var solution map[*db.Driver][]db.Order
 	// var gain float32
@@ -20,12 +22,17 @@ func (i *HTTPInstanceAPI) anneling(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if _, _, err = i.api.Anneling(parameters); err != nil {
+	if solutionValue, err = i.api.Anneling(parameters); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
 		i.log.Errorf("error while algorithm anneling %v", err)
 		return
 	}
-	// i.log.Debugf("Solution %v \n gain %v", solution, gain)
 
+	if body, err = json.Marshal(solutionValue); err != nil {
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		i.log.Errorf("error marshaling data %v", err)
+		return
+	}
 	ctx.Response.SetStatusCode(fasthttp.StatusAccepted)
+	ctx.Response.SetBody(body)
 }

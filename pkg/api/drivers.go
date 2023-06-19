@@ -10,6 +10,10 @@ func (a *InstanceAPI) Driver(ID string) (*structures.Driver, error) {
 	return a.dbController.Driver(ID)
 }
 
+func (a *InstanceAPI) PageDriver(page, number int) (*structures.DriverPagination, error) {
+	return a.dbController.PageDriver(page, number)
+}
+
 func (a *InstanceAPI) AddDriver(driver *structures.DriverRequest) (string, error) {
 	return a.dbController.AddDriver(driver)
 }

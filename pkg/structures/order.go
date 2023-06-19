@@ -37,10 +37,17 @@ type OrderRequest struct {
 }
 
 type OrderAlgorithm struct {
-	ID         string    `json:"id" bson:"id"`
-	Gain       int64     `json:"gain" bson:"gain"`
-	TimeFinish time.Time `json:"time_finish" bson:"time_finish"`
-	Weight     float32   `json:"weight" bson:"weight"`
-	Taken      bool      `json:"taken" bson:"taken"`
-	Priority   float32   `json:"priority" bson:"priority"`
+	ID           string    `json:"id" bson:"id"`
+	Gain         int64     `json:"gain" bson:"gain"`
+	TimeFinish   time.Time `json:"time_finish" bson:"time_finish"`
+	PositionTake Position  `json:"position_take" bson:"position_take"`
+	PositionSend Position  `json:"position_send" bson:"position_send"`
+	Weight       float32   `json:"weight" bson:"weight"`
+	Taken        bool      `json:"taken" bson:"taken"`
+	Priority     float32   `json:"priority" bson:"priority"`
+}
+
+type OrderPagination struct {
+	OrderCount int     `json:"order_count"`
+	Orders     []Order `json:"orders"`
 }

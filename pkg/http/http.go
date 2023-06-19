@@ -23,55 +23,47 @@ func NewHTTPInstanceAPI(bind string, log logrus.FieldLogger, api *api.InstanceAP
 	}
 }
 
-func (i *HTTPInstanceAPI) OptionsHandler(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.Add("Access-Control-Allow-Origin", "http://localhost:3000")
-	ctx.Response.Header.Add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")
-	ctx.Response.Header.Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-	ctx.Response.Header.Add("Access-Control-Allow-Credentials", "true")
-	ctx.Response.Header.Add("Access-Control-Expose-Headers", "*")
-	ctx.Response.SetStatusCode(200)
-}
-
 func (i *HTTPInstanceAPI) Run() {
 	r := router.New()
 
 	r.GET("/", i.handleRoot)
-	// Put manual video
 	r.POST("/process_map", i.processMap)
 
 	// Order
 	r.GET("/orders", i.orders)
-	r.GET("/order", i.order)
-	r.POST("/order", i.addOrders)
-	r.PUT("/order", i.updateOrder)
-	r.DELETE("/order", i.deleteOrder)
+	r.GET("/order/{id}", i.order)
+	r.GET("/orders/{page}_{number}", i.pageOrder)
+	r.POST("/orders", i.addOrders)
+	r.PUT("/orders", i.updateOrder)
+	r.DELETE("/orders/{id}", i.deleteOrder)
 
 	// Driver
 	r.GET("/drivers", i.drivers)
-	r.GET("/driver", i.driver)
+	r.GET("/driver/{id}", i.driver)
+	r.GET("/drivers/{page}_{number}", i.pageDriver)
 	r.POST("/driver", i.addDrivers)
 	r.PUT("/driver", i.updateDriver)
-	r.DELETE("/driver", i.deleteDriver)
+	r.DELETE("/driver/{id}", i.deleteDriver)
 
 	// Algorithms
 	r.POST("/simulated_anneling", i.anneling)
 
+	cors := func(h fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return func(ctx *fasthttp.RequestCtx) {
+			ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+			ctx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+			ctx.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type")
+			h(ctx)
+		}
+	}
+
 	i.log.Infof("Starting server at %s", i.bind)
 	s := &fasthttp.Server{
-		Handler:            r.Handler,
+		Handler:            cors(r.Handler),
 		Name:               "Transport_app",
 		MaxRequestBodySize: 64 * 1024 * 1024 * 1024, // 64MiB
 	}
 	log.Fatal(s.ListenAndServe(i.bind))
-}
-
-func handleRequest(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.Add("Access-Control-Allow-Origin", "*")
-	ctx.Response.Header.Add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")
-	ctx.Response.Header.Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-	ctx.Response.Header.Add("Access-Control-Allow-Credentials", "true")
-	ctx.Response.Header.Add("Access-Control-Expose-Headers", "*")
-	ctx.Response.Header.Add("Content-type", "application/json charset=utf-8 video/mp4")
 }
 
 func (i *HTTPInstanceAPI) handleRoot(ctx *fasthttp.RequestCtx) {

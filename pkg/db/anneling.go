@@ -16,7 +16,7 @@ type AnnelingParameters struct {
 	K       float64 `json:"k" bson:"k"`
 }
 
-func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.Solution, float32, error) {
+func (d *DBController) Anneling(parameters *AnnelingParameters) (*structures.SolutionValues, error) {
 	var emptyOrders []structures.Order
 	var drivers []structures.Driver
 	var err error
@@ -25,16 +25,16 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 	var actualNeighbor []structures.Solution
 
 	if emptyOrders, err = d.EmptyOrders(); err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	if drivers, err = d.Drivers(); err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	ordersPriority = algorithms.PriorityOrders(emptyOrders)
 
 	initialSolution := algorithms.NeighboorsSimple(ordersPriority, drivers)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	bestSolution := initialSolution
@@ -42,7 +42,7 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 	temperature := parameters.T_init
 
 	if ordersPriority.IsEmpty() {
-		return nil, 0, nil
+		return nil, nil
 	}
 
 	iteration := 0
@@ -51,7 +51,7 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 	for (temperature > parameters.T_end) && parameters.N_max > 0 {
 		solutionNeighbor = algorithms.ChangeNeighborhood(actualNeighbor, ordersPriority, 6)
 		gainNeighbor := algorithms.Gain(solutionNeighbor)
-		d.log.Debugf("%v \t\t %v \t\t %v", iteration, bestGain, gainNeighbor)
+		// d.log.Debugf("%v \t\t %v \t\t %v", iteration, bestGain, gainNeighbor)
 
 		if gainNeighbor > bestGain {
 			bestSolution = solutionNeighbor
@@ -68,7 +68,8 @@ func (d *DBController) Anneling(parameters *AnnelingParameters) ([]structures.So
 		temperature *= parameters.Cooling
 		parameters.N_max -= 1
 		iteration += 1
+		// d.log.Debugf("solutions: %v", solutionNeighbor[1].Orders)
 	}
 
-	return bestSolution, bestGain, nil
+	return &structures.SolutionValues{Profit: bestGain}, nil
 }

@@ -56,6 +56,38 @@ func (d *DBController) Order(ID string) (*structures.Order, error) {
 	return order, nil
 }
 
+func (d *DBController) PageOrder(page, number int) (*structures.OrderPagination, error) {
+	collection := d.db.Collection("Orders")
+	var orders []structures.Order
+
+	skip := page * number
+	findOptions := options.Find().
+		SetSkip(int64(skip)).
+		SetLimit(int64(number))
+	filter := bson.M{}
+
+	countOrder, _ := collection.CountDocuments(context.Background(), filter)
+
+	cur, err := collection.Find(context.Background(), filter, findOptions)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(context.Background())
+
+	for cur.Next(context.Background()) {
+		var order structures.Order
+		if err := cur.Decode(&order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return &structures.OrderPagination{OrderCount: int(countOrder), Orders: orders}, nil
+}
+
 func (d *DBController) AddOrder(orderRequest *structures.OrderRequest) (string, error) {
 	collection := d.db.Collection("Orders")
 	ID := generateID("od")
@@ -79,10 +111,10 @@ func (d *DBController) AddOrder(orderRequest *structures.OrderRequest) (string, 
 
 func (d *DBController) UpdateOrder(order *structures.Order) error {
 	collection := d.db.Collection("Orders")
-
 	filter := bson.M{"id": order.ID}
+	update := bson.M{"$set": order}
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	err := collection.FindOneAndUpdate(context.Background(), filter, order, options)
+	err := collection.FindOneAndUpdate(context.Background(), filter, update, options)
 	if err := err.Err(); err != nil {
 		return err
 	}

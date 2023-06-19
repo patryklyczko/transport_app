@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/patryklyczko/transport_app/pkg/structures"
 	"github.com/valyala/fasthttp"
@@ -33,16 +34,39 @@ func (i *HTTPInstanceAPI) driver(ctx *fasthttp.RequestCtx) {
 	var err error
 	var body []byte
 
-	args := ctx.QueryArgs()
-	ID := string(args.Peek("id"))
+	id := ctx.UserValue("id").(string)
 
-	if driver, err = i.api.Driver(ID); err != nil {
+	if driver, err = i.api.Driver(id); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
 		i.log.Errorf("error while getting driver: %v", err)
 		return
 	}
 
 	if body, err = json.Marshal(&driver); err != nil {
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		i.log.Errorf("error marshaling data %v", err)
+		return
+	}
+
+	ctx.Response.SetStatusCode(fasthttp.StatusOK)
+	ctx.Response.SetBody(body)
+}
+
+func (i *HTTPInstanceAPI) pageDriver(ctx *fasthttp.RequestCtx) {
+	var orders *structures.DriverPagination
+	var err error
+	var body []byte
+
+	page, _ := strconv.Atoi(ctx.UserValue("page").(string))
+	number, _ := strconv.Atoi(ctx.UserValue("number").(string))
+
+	if orders, err = i.api.PageDriver(page, number); err != nil {
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		i.log.Errorf("error while getting pagination orders: %v", err)
+		return
+	}
+
+	if body, err = json.Marshal(orders); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
 		i.log.Errorf("error marshaling data %v", err)
 		return
@@ -97,21 +121,14 @@ func (i *HTTPInstanceAPI) updateDriver(ctx *fasthttp.RequestCtx) {
 
 func (i *HTTPInstanceAPI) deleteDriver(ctx *fasthttp.RequestCtx) {
 	var err error
-	var ID structures.UID
-	body := ctx.Request.Body()
+	id := ctx.UserValue("id").(string)
 
-	if err := json.Unmarshal(body, &ID); err != nil {
-		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		i.log.Errorf("error while unmarshaling %v", err)
-		return
-	}
-
-	if err = i.api.DeleteDriver(ID.ID); err != nil {
+	if err = i.api.DeleteDriver(id); err != nil {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
 		i.log.Errorf("error while deleting driver %v", err)
 		return
 	}
 
-	i.log.Debugf("deleted driver %v", ID.ID)
+	i.log.Debugf("deleted driver %v", id)
 	ctx.Response.SetStatusCode(fasthttp.StatusCreated)
 }
