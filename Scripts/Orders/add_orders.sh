@@ -5,7 +5,7 @@ lon_list=(1 29 4 2 3 44 3 21 4 9 12)
 
 length=${#lon_list[@]}
 
-URL="http://localhost:8000/order"
+URL="http://localhost:8000/orders"
 for ((i=0; i<$length; i++)); do
     data='{
     "position_send": {

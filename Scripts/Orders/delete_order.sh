@@ -1,7 +1,5 @@
 #!/bin/sh
 
-URL="http://localhost:8000/order"
+URL="http://localhost:8000/order/od_1683359699797216804-8"
 
-data='{"id":"od_1683359699797216804-8"}'
-
-curl -X DELETE -d "$data" "$URL"
+curl -X DELETE "$URL"

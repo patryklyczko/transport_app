@@ -6,7 +6,7 @@ data='{
   "t_init":1000,
   "cooling":0.90,
   "t_end":1,
-  "n_max":100,
+  "n_max":50,
   "k":10
 }'
 

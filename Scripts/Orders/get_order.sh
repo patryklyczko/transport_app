@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="http://localhost:8000/order"
+URL="http://localhost:8000/orders/od_1685201515060197578-6"
 
 QUERY_PARAMS=${1:-}
 
